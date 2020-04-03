@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CompanyEmployees.Extensions;
+using CompanyEmployees.Formatters;
 using Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,11 +39,13 @@ namespace CompanyEmployees
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
 
-            services.AddControllers(options => 
+            services.AddControllers(config => 
             {
-                options.RespectBrowserAcceptHeader = true;
-                options.ReturnHttpNotAcceptable = true;
+                config.RespectBrowserAcceptHeader = true;
+                config.ReturnHttpNotAcceptable = true;
+                config.OutputFormatters.Add(new CsvOutputFormatter());
             })
+            .AddNewtonsoftJson()
             .AddXmlDataContractSerializerFormatters()
             .AddCustomCsvFormatter();
 
