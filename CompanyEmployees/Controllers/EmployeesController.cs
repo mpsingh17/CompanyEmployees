@@ -81,6 +81,12 @@ namespace CompanyEmployees.Controllers
                 return BadRequest("EmployeeForCreationDto object is null");
             }
 
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the EmployeeForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
             var company = _repository.Company.GetCompany(companyId, trackChanges: false);
             if(company == null)
             {
@@ -94,7 +100,8 @@ namespace CompanyEmployees.Controllers
             var employeeToReturn = _mapper.Map<EmployeeDto>(employeeEntity);
             return CreatedAtRoute(
                 "GetEmployeeForCompany",
-                new { companyId, id = employeeEntity.Id }, employeeToReturn);
+                new { companyId, id = employeeEntity.Id },
+                employeeToReturn);
         }
     
         [HttpDelete("{id}")]
