@@ -23,6 +23,7 @@ namespace CompanyEmployees
             // DTOs to Models.
             CreateMap<CompanyForCreationDto, Company>();
             CreateMap<EmployeeForCreationDto, Employee>();
+            CreateMap<EmployeeForUpdateDto, Employee>();
         }
     }
 }
