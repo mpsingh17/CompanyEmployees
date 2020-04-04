@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Entities;
 using Entities.Models;
+using Entities.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +29,11 @@ namespace Repository
             FindByCondition(e => e.CompanyId.Equals(companyId) && e.Id.Equals(id), trackChanges)
             .SingleOrDefault();
 
-        public IEnumerable<Employee> GetEmployees(Guid companyId, bool trackChanges) =>
+        public IEnumerable<Employee> GetEmployees(Guid companyId, EmployeeParameters employeeParameters, bool trackChanges) =>
             FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
             .OrderBy(e => e.Name)
+            .Skip((employeeParameters.PageNumber - 1) * (employeeParameters.PageSize))
+            .Take(employeeParameters.PageSize)
             .ToList();
     }
 }

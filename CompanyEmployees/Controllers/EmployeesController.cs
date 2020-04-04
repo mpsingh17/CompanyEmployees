@@ -6,6 +6,7 @@ using AutoMapper;
 using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEmployeesForCompany(Guid companyId)
+        public IActionResult GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             var company = _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
 
@@ -42,7 +43,7 @@ namespace CompanyEmployees.Controllers
                 return NotFound();
             }
 
-            var employeesInDb = _repository.Employee.GetEmployees(companyId, trackChanges: false);
+            var employeesInDb = _repository.Employee.GetEmployees(companyId, employeeParameters, trackChanges: false);
 
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesInDb);
 
