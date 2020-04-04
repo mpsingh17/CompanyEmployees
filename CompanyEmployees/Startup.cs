@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using CompanyEmployees.ActionFilters;
 using CompanyEmployees.Extensions;
 using CompanyEmployees.Formatters;
 using Contracts;
@@ -55,6 +56,8 @@ namespace CompanyEmployees
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+
+            services.AddScoped<ValidationFilterAttribute>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
