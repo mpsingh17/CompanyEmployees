@@ -10,6 +10,7 @@ using Entities.RequestFeatures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CompanyEmployees.Controllers
 {
@@ -33,7 +34,9 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
+        public async Task<IActionResult> GetEmployeesForCompany(
+            Guid companyId,
+            [FromQuery] EmployeeParameters employeeParameters)
         {
             var company = _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
 
@@ -43,7 +46,11 @@ namespace CompanyEmployees.Controllers
                 return NotFound();
             }
 
-            var employeesInDb = _repository.Employee.GetEmployees(companyId, employeeParameters, trackChanges: false);
+            var employeesInDb = await _repository.Employee.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
+
+            Response.Headers.Add(
+                "X-Pagination",
+                JsonConvert.SerializeObject(employeesInDb.MetaData));
 
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesInDb);
 

@@ -2,10 +2,12 @@
 using Entities;
 using Entities.Models;
 using Entities.RequestFeatures;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -35,5 +37,18 @@ namespace Repository
             .Skip((employeeParameters.PageNumber - 1) * (employeeParameters.PageSize))
             .Take(employeeParameters.PageSize)
             .ToList();
+
+        public async Task<PagedList<Employee>> GetEmployeesAsync(Guid companyId, EmployeeParameters employeeParameters, bool trackChanges)
+        {
+            var employees = await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
+                .OrderBy(e => e.Name).ToListAsync();
+
+            return PagedList<Employee>.ToPagedList(
+                employees,
+                employeeParameters.PageNumber,
+                employeeParameters.PageSize
+            );
+        }
+            
     }
 }
