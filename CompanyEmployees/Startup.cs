@@ -39,12 +39,14 @@ namespace CompanyEmployees
             services.ConfigureLoggerService();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
+            services.ConfigureResponseCaching();
 
             services.AddControllers(config => 
             {
                 config.RespectBrowserAcceptHeader = true;
                 config.ReturnHttpNotAcceptable = true;
                 config.OutputFormatters.Add(new CsvOutputFormatter());
+                config.CacheProfiles.Add("120Seconds", new CacheProfile { Duration = 120 });
             })
             .AddNewtonsoftJson()
             .AddXmlDataContractSerializerFormatters()
@@ -80,6 +82,8 @@ namespace CompanyEmployees
             { 
                 ForwardedHeaders = ForwardedHeaders.All
             });
+
+            app.UseResponseCaching();
 
             app.UseRouting();
 

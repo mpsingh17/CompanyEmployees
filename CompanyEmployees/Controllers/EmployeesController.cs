@@ -38,7 +38,10 @@ namespace CompanyEmployees.Controllers
             Guid companyId,
             [FromQuery] EmployeeParameters employeeParameters)
         {
-            var company = _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
+            var company = await _repository.Company.GetCompanyAsync(
+                companyId,
+                trackChanges: false
+            );
 
             if (company == null)
             {
@@ -46,8 +49,12 @@ namespace CompanyEmployees.Controllers
                 return NotFound();
             }
 
-            var employeesInDb = await _repository.Employee.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
-
+            var employeesInDb = await _repository.Employee.GetEmployeesAsync(
+                companyId,
+                employeeParameters,
+                trackChanges: false
+            );
+            
             Response.Headers.Add(
                 "X-Pagination",
                 JsonConvert.SerializeObject(employeesInDb.MetaData));

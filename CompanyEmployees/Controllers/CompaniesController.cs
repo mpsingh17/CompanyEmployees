@@ -15,6 +15,7 @@ namespace CompanyEmployees.Controllers
 {
     [Route("api/companies")]
     [ApiController]
+    [ResponseCache(CacheProfileName = "120Seconds")]
     public class CompaniesController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
