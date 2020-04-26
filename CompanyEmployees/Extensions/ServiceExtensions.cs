@@ -2,9 +2,11 @@
 using CompanyEmployees.Formatters;
 using Contracts;
 using Entities;
+using Entities.Models;
 using LoggerService;
 using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,6 +88,23 @@ namespace CompanyEmployees.Extensions
             services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
+        }
+
+        public static void ConfigureIdentity(this IServiceCollection services)
+        {
+            var builder = services.AddIdentityCore<User>(opt =>
+            {
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireLowercase = false;
+                opt.Password.RequireUppercase = false;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 10;
+
+                opt.User.RequireUniqueEmail = true;
+            });
+            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
+            builder.AddEntityFrameworkStores<RepositoryContext>()
+                .AddDefaultTokenProviders();
         }
     }
 }

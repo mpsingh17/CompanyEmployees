@@ -42,6 +42,9 @@ namespace CompanyEmployees
             services.ConfigureRepositoryManager();
             services.ConfigureResponseCaching();
             services.ConfigureHttpCacheHeaders();
+            
+            services.AddAuthentication();
+            services.ConfigureIdentity();
 
             services.AddControllers(config => 
             {
@@ -96,6 +99,7 @@ namespace CompanyEmployees
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
