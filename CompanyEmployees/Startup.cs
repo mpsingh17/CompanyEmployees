@@ -40,6 +40,7 @@ namespace CompanyEmployees
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
             services.ConfigureResponseCaching();
+            services.ConfigureHttpCacheHeaders();
 
             services.AddControllers(config => 
             {
@@ -84,6 +85,7 @@ namespace CompanyEmployees
             });
 
             app.UseResponseCaching();
+            app.UseHttpCacheHeaders();
 
             app.UseRouting();
 
