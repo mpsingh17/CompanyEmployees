@@ -1,4 +1,5 @@
-﻿using CompanyEmployees.Formatters;
+﻿using AspNetCoreRateLimit;
+using CompanyEmployees.Formatters;
 using Contracts;
 using Entities;
 using LoggerService;
@@ -56,12 +57,35 @@ namespace CompanyEmployees.Extensions
             services.AddHttpCacheHeaders(
                 (expirationOpt) =>
                 {
-                    expirationOpt.MaxAge = 120;
+                    expirationOpt.MaxAge = 60;
                     expirationOpt.CacheLocation = CacheLocation.Private;
                 },
                 (validationOpt) =>
                 {
                     validationOpt.MustRevalidate = true;
                 });
+
+        public static void ConfigureRateLimitingOptions(this IServiceCollection services)
+        {
+            var rateLimitRules = new List<RateLimitRule>
+            {
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Limit = 3,
+                    Period = "5m"
+                }
+            };
+
+            services.Configure<IpRateLimitOptions>(opt =>
+            {
+                opt.GeneralRules = rateLimitRules;
+            });
+
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+        }
     }
 }
