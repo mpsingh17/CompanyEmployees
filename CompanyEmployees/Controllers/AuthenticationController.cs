@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CompanyEmployees.ActionFilters;
+using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
@@ -18,11 +19,13 @@ namespace CompanyEmployees.Controllers
     {
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
+        private readonly IAuthenticationManager _authManager;
 
-        public AuthenticationController(IMapper mapper, UserManager<User> userManager)
+        public AuthenticationController(IMapper mapper, UserManager<User> userManager, IAuthenticationManager authManager)
         {
             _mapper = mapper;
             _userManager = userManager;
+            _authManager = authManager;
         }
 
         [HttpPost]
@@ -47,5 +50,18 @@ namespace CompanyEmployees.Controllers
 
             return StatusCode(201);
         }
+    
+        [HttpPost("login")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto userForAuthenticationDto)
+        {
+            if (! await _authManager.ValidateUser(userForAuthenticationDto))
+            {
+                return Unauthorized();
+            }
+
+            return Ok(new { Token = await _authManager.CreateToken() });
+        }            
+    
     }
 }

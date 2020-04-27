@@ -8,6 +8,7 @@ using AutoMapper;
 using CompanyEmployees.ActionFilters;
 using CompanyEmployees.Extensions;
 using CompanyEmployees.Formatters;
+using CompanyEmployees.Utility;
 using Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -71,6 +72,7 @@ namespace CompanyEmployees
 
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateCompanyExistsAttribute>();
+            services.AddScoped<IAuthenticationManager, AuthenticationManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
