@@ -3,6 +3,7 @@ using CompanyEmployees.Formatters;
 using Contracts;
 using Entities;
 using Entities.Models;
+using IdentityServer4.AccessTokenValidation;
 using LoggerService;
 using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,6 +25,16 @@ namespace CompanyEmployees.Extensions
 {
     public static class ServiceExtensions
     {
+        public static void ConfigureAuthenticationHandler(this IServiceCollection services)
+        {
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(opt =>
+                {
+                    opt.Authority = "https://localhost:5005";
+                    opt.ApiName = "companyemployeeapi";
+                });
+        }
+
         public static void ConfigureCors(this IServiceCollection services) =>
             services.AddCors(options => 
             {

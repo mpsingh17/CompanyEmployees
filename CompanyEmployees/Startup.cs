@@ -43,13 +43,14 @@ namespace CompanyEmployees
             services.ConfigureRepositoryManager();
             services.ConfigureResponseCaching();
             services.ConfigureHttpCacheHeaders();
-            
+
             services.AddAuthentication();
             services.ConfigureIdentity();
-            services.ConfigureJWT(Configuration);
+            //services.ConfigureJWT(Configuration);
 
             services.ConfigureSwagger();
 
+            services.ConfigureAuthenticationHandler();
             services.AddControllers(config => 
             {
                 config.RespectBrowserAcceptHeader = true;
