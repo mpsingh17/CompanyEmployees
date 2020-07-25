@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Linq.Dynamic.Core;
+using Repository.Extensions.Utility;
 
 namespace Repository.Extensions
 {
@@ -15,32 +16,7 @@ namespace Repository.Extensions
             if (string.IsNullOrWhiteSpace(orderByQueryString))
                 return employees.OrderBy(e => e.Name);
 
-            var orderByParams = orderByQueryString.Trim().Split(",");
-
-            var propertyInfos = typeof(Employee).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            var orderByQueryBuilder = new StringBuilder();
-
-            foreach (var param in orderByParams)
-            {
-                if (string.IsNullOrWhiteSpace(param))
-                    continue;
-
-                var orderByPropertyNameInQueryString = param.Trim().Split(" ")[0];
-
-                var orderByPropertyName = propertyInfos.FirstOrDefault(
-                    pi => pi.Name.Equals(orderByPropertyNameInQueryString, StringComparison.InvariantCultureIgnoreCase)
-                );
-
-                if (orderByPropertyName == null)
-                    continue;
-
-                var direction = param.EndsWith(" desc") ? "descending" : "ascending";
-
-                orderByQueryBuilder.Append($"{orderByPropertyName.Name} {direction}, ");
-            }
-
-            var orderQuery = orderByQueryBuilder.ToString().TrimEnd(',', ' ');
+            var orderQuery = OrderByQueryBuilder.CreateOderByQuery<Employee>(orderByQueryString);
 
             if (string.IsNullOrWhiteSpace(orderQuery))
                 return employees.OrderBy(e => e.Name);
