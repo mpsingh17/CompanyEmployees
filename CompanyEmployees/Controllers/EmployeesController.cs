@@ -34,14 +34,13 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployeesForCompany(
-            Guid companyId,
-            [FromQuery] EmployeeParameters employeeParameters)
+        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
-            var company = await _repository.Company.GetCompanyAsync(
-                companyId,
-                trackChanges: false
-            );
+            if (!employeeParameters.ValidAgeRange)
+                return BadRequest("Max age should be greater than min age.");
+
+            var company = await _repository.Company
+                .GetCompanyAsync(companyId, trackChanges: false);
 
             if (company == null)
             {
@@ -49,11 +48,8 @@ namespace CompanyEmployees.Controllers
                 return NotFound();
             }
 
-            var employeesInDb = await _repository.Employee.GetEmployeesAsync(
-                companyId,
-                employeeParameters,
-                trackChanges: false
-            );
+            var employeesInDb = await _repository.Employee
+                .GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
             
             Response.Headers.Add(
                 "X-Pagination",
