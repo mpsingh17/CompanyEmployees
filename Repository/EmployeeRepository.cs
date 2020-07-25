@@ -3,6 +3,7 @@ using Entities;
 using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,8 @@ namespace Repository
             var employees = await FindByCondition(
                 e => e.CompanyId.Equals(companyId) && (e.Age >= employeeParameters.MinAge && e.Age <= employeeParameters.MaxAge)
                 , trackChanges)
-                .OrderBy(e => e.Name).ToListAsync();
+                .Sort(employeeParameters.OrderBy)
+                .ToListAsync();
 
             return PagedList<Employee>.ToPagedList(
                 employees,

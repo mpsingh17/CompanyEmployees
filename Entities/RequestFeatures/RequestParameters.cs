@@ -6,6 +6,10 @@ namespace Entities.RequestFeatures
 {
     public abstract class RequestParameters
     {
+        public RequestParameters()
+        {
+            OrderBy = "name";
+        }
         const int maxPageSize = 50;
 
         public int PageNumber { get; set; } = 1;
@@ -22,5 +26,8 @@ namespace Entities.RequestFeatures
                 _pageSize = (value > maxPageSize) ? maxPageSize : value;
             }
         }
+
+        public string OrderBy { get; set; }
+
     }
 }
