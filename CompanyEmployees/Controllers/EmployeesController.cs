@@ -18,16 +18,19 @@ namespace CompanyEmployees.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
+        private readonly IDataShaper<EmployeeDto> _dataShaper;
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
 
         public EmployeesController(
+            IDataShaper<EmployeeDto> dataShaper,
             IRepositoryManager repository,
             ILoggerManager logger,
             IMapper mapper
         )
         {
+            _dataShaper = dataShaper;
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
@@ -57,7 +60,7 @@ namespace CompanyEmployees.Controllers
 
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesInDb);
 
-            return Ok(employeesDto);
+            return Ok(_dataShaper.ShapeData(employeesDto, employeeParameters.Fields));
         }
 
         [HttpGet("{id}", Name = "GetEmployeeForCompany")]
