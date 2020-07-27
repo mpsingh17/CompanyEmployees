@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Entities.LinkModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,5 +15,6 @@ namespace Entities.DataTransferObjects
 
         public string Position { get; set; }
 
+        public IEnumerable<Link> Links { get; set; }
     }
 }

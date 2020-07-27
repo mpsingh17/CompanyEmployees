@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using CompanyEmployees.ActionFilters;
 using Contracts;
 using Entities.DataTransferObjects;
+using Entities.LinkModels;
 using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
 namespace CompanyEmployees.Controllers
@@ -20,16 +23,19 @@ namespace CompanyEmployees.Controllers
     {
         private readonly IDataShaper<EmployeeDto> _dataShaper;
         private readonly IRepositoryManager _repository;
+        private readonly LinkGenerator _linkGenerator;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
 
         public EmployeesController(
             IDataShaper<EmployeeDto> dataShaper,
             IRepositoryManager repository,
+            LinkGenerator linkGenerator,
             ILoggerManager logger,
             IMapper mapper
         )
         {
+            _linkGenerator = linkGenerator;
             _dataShaper = dataShaper;
             _repository = repository;
             _logger = logger;
@@ -37,6 +43,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             if (!employeeParameters.ValidAgeRange)
@@ -59,6 +66,7 @@ namespace CompanyEmployees.Controllers
                 JsonConvert.SerializeObject(employeesInDb.MetaData));
 
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesInDb);
+            GenerateLinks(employeesDto, companyId);
 
             return Ok(_dataShaper.ShapeData(employeesDto, employeeParameters.Fields));
         }
@@ -118,7 +126,7 @@ namespace CompanyEmployees.Controllers
                 employeeToReturn);
         }
     
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "DeleteEmployeeForCompany")]
         public IActionResult DeleteEmployeeForCompany(Guid companyId, Guid id)
         {
             var company = _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
@@ -140,7 +148,7 @@ namespace CompanyEmployees.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "UpdateEmployeeForCompany")]
         public IActionResult UpdateEmployeeForCompany(Guid companyId, Guid id, [FromBody] EmployeeForUpdateDto employee)
         {
             if (employee == null)
@@ -217,6 +225,35 @@ namespace CompanyEmployees.Controllers
 
             _repository.SaveAsync();
             return NoContent();
+        }
+    
+        private void GenerateLinks(IEnumerable<EmployeeDto> employeeDtos, Guid companyId)
+        {
+            foreach (var employee in employeeDtos)
+            {
+                var links = new List<Link>
+                {
+                    new Link
+                    {
+                        Href = _linkGenerator.GetUriByAction(HttpContext, "GetEmployeeForCompany", values: new { companyId, employee.Id }),
+                        Rel = "self",
+                        Method = "GET"
+                    },
+                    new Link
+                    {
+                        Href = _linkGenerator.GetUriByAction(HttpContext, "DeleteEmployeeForCompany", values: new { companyId, employee.Id }),
+                        Rel = "delete_employee",
+                        Method = "DELETE"
+                    },
+                    new Link
+                    {
+                        Href = _linkGenerator.GetUriByAction(HttpContext, "UpdateEmployeeForCompany", values: new { companyId, employee.Id }),
+                        Rel = "update_employee",
+                        Method = "PUT"
+                    }
+                };
+                employee.Links = links;
+            }
         }
     }
 }

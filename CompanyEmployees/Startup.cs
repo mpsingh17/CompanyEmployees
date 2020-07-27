@@ -64,6 +64,8 @@ namespace CompanyEmployees
             .AddXmlDataContractSerializerFormatters()
             .AddCustomCsvFormatter();
 
+            services.AddCustomMediaTypes();
+
             services.AddAutoMapper(typeof(Startup));
 
             services.Configure<ApiBehaviorOptions>(options =>
@@ -77,6 +79,7 @@ namespace CompanyEmployees
 
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateCompanyExistsAttribute>();
+            services.AddScoped<ValidateMediaTypeAttribute>();
             services.AddScoped<IAuthenticationManager, AuthenticationManager>();
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
         }
